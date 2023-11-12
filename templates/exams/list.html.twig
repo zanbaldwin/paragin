@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Imported Exams</h1>
+    <ul>
+        {% for exam in exams %}
+            <li><a href="{{ path('show_exam', {exam: exam.id}) }}">{{ exam.name }}</a></li>
+        {% else %}
+            <li><em>No exams currently imported.</em></li>
+        {% endfor %}
+    </ul>
+{% endblock body %}

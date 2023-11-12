@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <p><a href="{{ path('list_exams') }}">&laquo; All Exams</a></p>
+    <h1>Exam "{{ exam.name }}"</h1>
+    <ul>
+        <li><a href="{{ path('student_results', {exam: exam.id}) }}">Student Results</a></li>
+        <li><a href="{{ path('exam_analytics', {exam: exam.id}) }}">Exam Analytics</a></li>
+    </ul>
+{% endblock body %}

@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <p><a href="{{ path('show_exam', {exam: exam.id}) }}">&laquo; Back</a></p>
+    <h1>Analytics for Exam "{{ exam.name }}"</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Question</th>
+                <th>Max Points</th>
+                <th>Average Score</th>
+                <th>P' Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stat in questionStats %}
+                <tr>
+                    <td>{{ stat.question.name }}</td>
+                    <td>{{ stat.question.maxPoints }}</td>
+                    <td>{{ '%.2f points'|format(stat.averageScore) }}</td>
+                    <td>{{ '%.5f'|format(stat.pdash) }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock body %}

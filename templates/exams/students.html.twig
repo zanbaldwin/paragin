@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <p><a href="{{ path('show_exam', {exam: exam.id}) }}">&laquo; Back</a></p>
+    <h1>Student Results for Exam "{{ exam.name }}"</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Points Scored</th>
+                <th>Percentage</th>
+                <th>Grade</th>
+                <th>Pass?</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+                <tr>
+                    <td>{{ result.student.name }}</td>
+                    <td>{{ result.points }}</td>
+                    <td>{{ '%.1f%%'|format(result.percentage) }}</td>
+                    <td>{{ result.grade }}</td>
+                    <td>
+                        {% if result.pass %}
+                            <span class="result pass">Pass</span>
+                        {% else %}
+                            <span class="result fail">Fail</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock body %}
