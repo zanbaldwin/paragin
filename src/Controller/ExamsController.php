@@ -15,7 +15,7 @@ class ExamsController extends AbstractController
         private readonly EntityManagerInterface $em,
     ) {}
 
-    #[Route('/exams', name: 'list_exams', methods: [Request::METHOD_GET])]
+    #[Route('/', name: 'list_exams', methods: [Request::METHOD_GET])]
     public function listAction(): Response
     {
         $repository = $this->em->getRepository(Exam::class);
