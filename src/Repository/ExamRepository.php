@@ -7,6 +7,7 @@ use App\DTO\StudentExamResult;
 use App\Entity\Exam;
 use App\Entity\Question;
 use App\Entity\Student;
+use App\Util;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -27,7 +28,7 @@ class ExamRepository extends ServiceEntityRepository
     }
 
     /** @return StudentExamResult[] */
-    public function getStudentPercentagesForExam(Exam $exam): array
+    public function getStudentResultsForExam(Exam $exam): array
     {
         $rsm = new ResultSetMappingBuilder(
             $this->getEntityManager(),
@@ -78,5 +79,34 @@ class ExamRepository extends ServiceEntityRepository
             fn (array $result): QuestionStats => new QuestionStats($exam, $result[0], $result['averageScore']),
             $query->getResult(),
         );
+    }
+
+    /** @return array<int, float> (questionID => correlationResult) */
+    public function getPitValuesForExamQuestions(Exam $exam): array
+    {
+        $studentResultsArray = array_map(function (StudentExamResult $result): int {
+            return $result->points;
+        }, $this->getStudentResultsForExam($exam));
+        $sql = 'SELECT question.id AS question_id, student.id AS student_id, answer.points AS student_points
+                FROM answer
+                LEFT JOIN student ON answer.student_id = student.id
+                LEFT JOIN question ON answer.question_id = question.id
+                WHERE question.exam_id = :examId
+                ORDER BY question.id ASC, student.id ASC';
+        $statement = $this->getEntityManager()->getConnection()->prepare($sql);
+        $flatResult = $statement->executeQuery(['examId' => $exam->getId()]);
+        $nestedResult = [];
+
+        foreach ($flatResult->iterateAssociative() as $row) {
+            $nestedResult[$row['question_id']] ??= [];
+            $nestedResult[$row['question_id']][] = $row['student_points'];
+        }
+
+        $questionCorrelationResults = [];
+        foreach ($nestedResult as $questionId => $studentPointsArray) {
+            $questionCorrelationResults[$questionId] = Util::correlation($studentPointsArray, $studentResultsArray);
+        }
+
+        return $questionCorrelationResults;
     }
 }

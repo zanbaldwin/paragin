@@ -10,6 +10,7 @@
                 <th>Max Points</th>
                 <th>Average Score</th>
                 <th>P' Value</th>
+                <th>P<sub>it</sub> Value</th>
             </tr>
         </thead>
         <tbody>
@@ -19,6 +20,7 @@
                     <td>{{ stat.question.maxPoints }}</td>
                     <td>{{ '%.2f points'|format(stat.averageScore) }}</td>
                     <td>{{ '%.5f'|format(stat.pdash) }}</td>
+                    <td>{{ pitValues[stat.question.id] }}</td>
                 </tr>
             {% endfor %}
         </tbody>

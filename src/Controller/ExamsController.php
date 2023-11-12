@@ -40,7 +40,7 @@ class ExamsController extends AbstractController
         $examRepository = $this->em->getRepository(Exam::class);
         return $this->render('exams/students.html.twig', [
             'exam' => $exam,
-            'results' => $examRepository->getStudentPercentagesForExam($exam)
+            'results' => $examRepository->getStudentResultsForExam($exam)
         ]);
     }
 
@@ -51,6 +51,7 @@ class ExamsController extends AbstractController
         return $this->render('exams/analytics.html.twig', [
             'exam' => $exam,
             'questionStats' => $examRepository->getQuestionStatsForExam($exam),
+            'pitValues' => $examRepository->getPitValuesForExamQuestions($exam),
         ]);
     }
 }
