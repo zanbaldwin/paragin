@@ -1,4 +1,4 @@
-# Exam Importer (Paragin Assignment)
+# Exam Importer (Paragin)
 
 ### Prerequisites
 
