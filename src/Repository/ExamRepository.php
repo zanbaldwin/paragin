@@ -2,8 +2,10 @@
 
 namespace App\Repository;
 
+use App\DTO\QuestionStats;
 use App\DTO\StudentExamResult;
 use App\Entity\Exam;
+use App\Entity\Question;
 use App\Entity\Student;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
@@ -49,6 +51,31 @@ class ExamRepository extends ServiceEntityRepository
         $query->execute(['examId' => $exam->getId()]);
         return array_map(
             fn (array $result): StudentExamResult => new StudentExamResult($exam, $result['maxPoints'], $result[0], $result['studentResult']),
+            $query->getResult(),
+        );
+    }
+
+    public function getQuestionStatsForExam(Exam $exam): array
+    {
+        $rsm = new ResultSetMappingBuilder(
+            $this->getEntityManager(),
+            ResultSetMappingBuilder::COLUMN_RENAMING_INCREMENT,
+        );
+        $rsm->addRootEntityFromClassMetadata(Question::class, 'question');
+        $rsm->addScalarResult('_question_average', 'averageScore', 'float');
+
+        $sql = 'SELECT ' . ((string) $rsm) . ',
+                AVG(answer.points) AS _question_average
+            FROM answer
+            LEFT JOIN question ON answer.question_id = question.id
+            WHERE question.exam_id = :examId
+            GROUP BY question.id
+            ORDER BY question.id ASC';
+
+        $query = $this->getEntityManager()->createNativeQuery($sql, $rsm);
+        $query->execute(['examId' => $exam->getId()]);
+        return array_map(
+            fn (array $result): QuestionStats => new QuestionStats($exam, $result[0], $result['averageScore']),
             $query->getResult(),
         );
     }
